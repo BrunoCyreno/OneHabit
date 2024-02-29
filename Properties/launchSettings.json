@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OneHabit": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\C# dotnet\\OneHabit\\OneHabit\\"
+    }
+  }
+}
