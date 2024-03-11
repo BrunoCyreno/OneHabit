@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
+using System.Globalization;
 
 namespace OneHabit
 {
@@ -62,9 +61,9 @@ namespace OneHabit
                         }
                         break;
 
-                    /* case 1:
-                         GetAllRecords();
-                         break;*/
+                    case "1":
+                        GetAllRecords();
+                        break;
 
                     case "2":
                         Insert();
@@ -103,6 +102,51 @@ namespace OneHabit
             }
         }
 
+        private static void GetAllRecords()
+        {
+            Console.Clear();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"SELECT * FROM drinking_water";
+
+                List<DrinkingWater> tableData = new();
+
+                SqliteDataReader reader = tableCmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        tableData.Add(
+                            new DrinkingWater
+                            {
+                                Id = reader.GetInt32(0),
+                                Date = DateTime.ParseExact(reader.GetString(1), "dd-MM-yy", new CultureInfo("en-US")),
+                                Quantity = reader.GetInt32(2)
+                            });
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No rows found");
+                }
+                connection.Close();
+
+                Console.WriteLine("*****************************************************************\n");
+                foreach (var dw in tableData)
+                {
+                    Console.WriteLine($"{dw.Id} - {dw.Date.ToString("dd-MMM-yyyy")} - Quantity: {dw.Quantity}");
+                }
+                Console.WriteLine("press any key to return to main menu...");
+                Console.ReadLine();
+                Console.WriteLine("*****************************************************************\n");
+            }
+        }
+
         internal static string GetDateInput()
         {
             Console.WriteLine("\n\n Insert date (format: dd-mm-yy). Press [0] to return");
@@ -120,4 +164,11 @@ namespace OneHabit
             return finalInput;
         }
     }
+}
+
+public class DrinkingWater
+{
+    public int Id { get; set; }
+    public DateTime Date { get; set; }
+    public int Quantity { get; set; }
 }
