@@ -73,9 +73,9 @@ namespace OneHabit
                         Delete();
                         break;
 
-                    /*case 4:
+                    case "4":
                         Update();
-                        break;*/
+                        break;
 
                     default:
                         Console.WriteLine($"\n ERROR: Please choose a valid option...\n");
@@ -141,6 +141,8 @@ namespace OneHabit
                 {
                     Console.WriteLine($"{dw.Id} - {dw.Date.ToString("dd-MMM-yyyy")} - Quantity: {dw.Quantity}");
                 }
+                connection.Close();
+
                 Console.WriteLine("press any key to return to main menu...");
                 Console.ReadLine();
                 Console.WriteLine("*****************************************************************\n");
@@ -152,7 +154,7 @@ namespace OneHabit
             Console.Clear();
             GetAllRecords();
 
-            var recordId = GetNumberInput("\n\n Type the ID of the record you want to delete or press [0] to return to the main menu\n\n");
+            var recordId = GetNumberInput("\n\n Type the ID of the record you want to delete or press [0] to return to the main menu:\n\n");
 
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -166,10 +168,44 @@ namespace OneHabit
                     Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. \n\n");
                     Delete();
                 }
+                connection.Close();
             }
 
             Console.WriteLine($"\n\nRecord with Id {recordId} successfully deleted\n\n");
             GetUserInput();
+        }
+
+        private static void Update()
+        {
+
+            GetAllRecords();
+
+            var recordId = GetNumberInput("\n\n\n\n Type the ID of the record you want to delete or press [0] to return to the main menu:\n\n");
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                var checkCmd = connection.CreateCommand();
+                checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM drinking_water WHERE Id = {recordId})";
+                int checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (checkQuery == 0)
+                {
+                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. \n\n");
+                    connection.Close();
+                    Update();
+                }
+
+                string date = GetDateInput();
+
+                int quantity = GetNumberInput($"\n\nPlease insert the quantity to delete.\n\n");
+
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText = $"UPDATE drinking_water SET date = {date}, quantity = {quantity} WHERE Id = {recordId}";
+                tableCmd.ExecuteNonQuery();
+                connection.Close();
+            }
         }
 
         internal static string GetDateInput()
