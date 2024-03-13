@@ -69,17 +69,17 @@ namespace OneHabit
                         Insert();
                         break;
 
-                        /* case 3:
-                             Delete();
-                             break;
+                    case "3":
+                        Delete();
+                        break;
 
-                         case 4:
-                             Update();
-                             break;
+                    /*case 4:
+                        Update();
+                        break;*/
 
-                         default:
-                             Console.WriteLine($"\n ERROR: Please choose a valid option...\n");
-                             break;*/
+                    default:
+                        Console.WriteLine($"\n ERROR: Please choose a valid option...\n");
+                        break;
                 }
             }
         }
@@ -145,6 +145,31 @@ namespace OneHabit
                 Console.ReadLine();
                 Console.WriteLine("*****************************************************************\n");
             }
+        }
+
+        private static void Delete()
+        {
+            Console.Clear();
+            GetAllRecords();
+
+            var recordId = GetNumberInput("\n\n Type the ID of the record you want to delete or press [0] to return to the main menu\n\n");
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText = $"DELETE from drinking_water WHERE Id = {recordId}";
+                int rowCount = tableCmd.ExecuteNonQuery();
+
+                if (rowCount == 0)
+                {
+                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. \n\n");
+                    Delete();
+                }
+            }
+
+            Console.WriteLine($"\n\nRecord with Id {recordId} successfully deleted\n\n");
+            GetUserInput();
         }
 
         internal static string GetDateInput()
